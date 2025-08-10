@@ -9,14 +9,14 @@ import (
 	"github.com/blues/jsonata-go"
 )
 
-type Input struct {
-	JSONInput   map[string]interface{} `json:"json_input"`
-	JSONataExpr string                 `json:"jsonata_expr"`
+type TransformRequest struct {
+	Data       interface{} `json:"data"`
+	Expression string      `json:"expression"`
 }
 
-type Result struct {
+type TransformResponse struct {
 	Success bool        `json:"success"`
-	Result  interface{} `json:"result"`
+	Data    interface{} `json:"data"`
 	Error   error       `json:"error"`
 	Message string      `json:"message"`
 }
@@ -27,9 +27,9 @@ func handleConnection(conn net.Conn) {
 	decoder := json.NewDecoder(conn)
 	encoder := json.NewEncoder(conn)
 
-	var in Input
-	if err := decoder.Decode(&in); err != nil {
-		encoder.Encode(Result{
+	var req TransformRequest
+	if err := decoder.Decode(&req); err != nil {
+		encoder.Encode(TransformResponse{
 			Success: false,
 			Error:   err,
 			Message: "Invalid JSON",
@@ -37,9 +37,9 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	expr, err := jsonata.Compile(in.JSONataExpr)
+	expr, err := jsonata.Compile(req.Expression)
 	if err != nil {
-		encoder.Encode(Result{
+		encoder.Encode(TransformResponse{
 			Success: false,
 			Error:   err,
 			Message: "Invalid expression",
@@ -47,9 +47,9 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	resp, err := expr.Eval(in.JSONInput)
+	resp, err := expr.Eval(req.Data)
 	if err != nil {
-		encoder.Encode(Result{
+		encoder.Encode(TransformResponse{
 			Success: false,
 			Error:   err,
 			Message: "Evaluation error",
@@ -57,8 +57,8 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	encoder.Encode(Result{
-		Result:  resp,
+	encoder.Encode(TransformResponse{
+		Data:    resp,
 		Success: true,
 		Error:   nil,
 	})

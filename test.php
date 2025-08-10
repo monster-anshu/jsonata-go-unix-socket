@@ -1,34 +1,58 @@
 <?php
 
-function jsonataEvaluate($jsonInput, $expression) {
-    $socketPath = '/tmp/jsonata.sock';
-    
-    $client = stream_socket_client("unix://$socketPath", $errno, $errstr, 2);
+class JsonataTransformer
+{
+    private $socketPath;
 
-    if (!$client) {
-        throw new Exception("Socket connection failed: $errstr ($errno)");
+    public function __construct(string $socketPath = "/tmp/jsonata.sock")
+    {
+        $this->socketPath = $socketPath;
     }
 
-    $payload = [
-        "json_input" => $jsonInput,
-        "jsonata_expr" => $expression
-    ];
+    /**
+     * @return array{
+     *     success: bool,
+     *     data: array,
+     *     error: mixed,
+     *     message: string
+     * }
+     */
+    public function transform($data, string $expression)
+    {
+        $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
-    fwrite($client, json_encode($payload) . "\n");
+        if (!$socket) {
+            throw new \RuntimeException("Failed to create socket");
+        }
 
-    $response = stream_get_contents($client);
-    fclose($client);
+        if (!socket_connect($socket, $this->socketPath)) {
+            throw new \RuntimeException("Failed to connect to JSONata service");
+        }
 
-    return json_decode($response, true);
+        $request = json_encode([
+            "data" => $data,
+            "expression" => $expression,
+        ]);
+
+        socket_write($socket, $request . "\n");
+
+        $response = "";
+        while ($buf = socket_read($socket, 1024)) {
+            $response .= $buf;
+        }
+
+        socket_close($socket);
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
 }
 
-
-$jsonInput = json_decode( file_get_contents("input.json"), true);
+$jsonInput = json_decode(file_get_contents("input.json"), true);
 $jsonataExpr = file_get_contents("input_expr.txt");
 
-$result = jsonataEvaluate(
-    $jsonInput,
-    $jsonataExpr
-);
+$transformer = new JsonataTransformer();
+$result = $transformer->transform($jsonInput, $jsonataExpr);
 
-print_r($result);
+print_r(json_encode($result, JSON_PRETTY_PRINT));
