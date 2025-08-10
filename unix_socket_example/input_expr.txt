@@ -1,0 +1,15 @@
+[
+  {
+    "recording" : {
+      "data" : recording_id
+    }
+  },
+  {
+    "transfer" : {
+      "type" : "agent",
+      "data" : agent_number,
+      "ring_type" : "order_by",
+      "skip_active" : "true"
+    }
+  }
+]

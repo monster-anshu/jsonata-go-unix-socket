@@ -1,0 +1,30 @@
+{
+  "AssociatedPhoneNumbers": "+91-7987439076",
+  "EmailAddress": "shubham.s@campusdegree.org",
+  "Role": "Sales_User",
+  "CompanyName": "Acadecraft Private Limited",
+  "TelephonyAgentId": null,
+  "PhoneMain": "+91-7987439076",
+  "PhoneMobile": "+91-7987439076",
+  "PhoneOthers": "+91-7987439076",
+  "Groups": [
+    {
+      "Id": "03d63ad7-7299-11f0-b1e3-0623476dd86d",
+      "Name": "Team Yogesh"
+    }
+  ],
+  "TeamId": "fdd8f3fc-f52a-11ed-85f2-028a08a8be96",
+  "TeamName": "Counsellor Team Leads",
+  "AgentId": null,
+  "PhoneName": null,
+  "mx_Custom_1": "0606221730018",
+  "mx_Custom_2": null,
+  "mx_Custom_3": null,
+  "mx_Custom_4": null,
+  "mx_Custom_5": null,
+  "mx_Custom_6": null,
+  "mx_Custom_7": null,
+  "mx_Custom_8": null,
+  "mx_Custom_9": null,
+  "mx_Custom_10": "+91-7987439076"
+}
